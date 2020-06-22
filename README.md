@@ -2,7 +2,7 @@
 
 ### *Antonino Malacrinò, Victoria A. Sadowski, Tvisha K. Martin, Nathalia Cavichiolli de Oliveira, Ian J. Brackett, James D. Feller, Kristian J. Harris, Orlando Combita Heredia, Rosa Vescio, Alison E. Bennett*
 
-#### Journal, 20xx. Preprint DOI: XXX Published article DOI: XXX
+#### Journal, 20xx. Preprint DOI: 10.1101/2020.06.17.157883 Published article DOI: XXX
 
 ## Acknowledgements
 
