@@ -2,7 +2,7 @@
 
 ### *Antonino Malacrinò, Victoria A. Sadowski, Tvisha K. Martin, Nathalia Cavichiolli de Oliveira, Ian J. Brackett, James D. Feller, Kristian J. Harris, Orlando Combita Heredia, Rosa Vescio, Alison E. Bennett*
 
-#### Journal, 20xx. Preprint DOI: [10.1101/2020.06.17.157883](https://www.biorxiv.org/content/10.1101/2020.06.17.157883) Published article DOI: XXX
+#### Accepted for publication in PLoS one, 2020. Preprint DOI: [10.1101/2020.06.17.157883](https://www.biorxiv.org/content/10.1101/2020.06.17.157883) Published article DOI: XXX
 
 ## Acknowledgements
 
@@ -226,6 +226,7 @@ dat <- dat[which(dat$Class !="Others")]
 summary <- summarySE(dat, measurevar="mean", groupvars=c("Sample_type","Family"))
                                
 list.bact <-unique(c(as.character(dat$Class)))
+
 model_calculator1 <- sapply(list.bact,  
                            function(x){
                              data.s <- dat[which(dat$Class==x),]
