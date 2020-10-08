@@ -2,7 +2,7 @@
 
 ### *Antonino Malacrinò, Victoria A. Sadowski, Tvisha K. Martin, Nathalia Cavichiolli de Oliveira, Ian J. Brackett, James D. Feller, Kristian J. Harris, Orlando Combita Heredia, Rosa Vescio, Alison E. Bennett*
 
-#### Journal, 20xx. Preprint DOI: [10.1101/2020.06.17.157883](https://www.biorxiv.org/content/10.1101/2020.06.17.157883v1) Published article DOI: XXX
+#### Journal, 20xx. Preprint DOI: [10.1101/2020.06.17.157883](https://www.biorxiv.org/content/10.1101/2020.06.17.157883) Published article DOI: XXX
 
 ## Acknowledgements
 
@@ -113,6 +113,7 @@ library("ggpubr") #Kassambara (2017)
 library("car") #Fox et al. (2012)
 library("lme4") #Bates et al. (2007)
 library("scales") #https://cran.r-project.org/web/packages/scales/index.html
+library("Rmisc") #https://cran.r-project.org/web/packages/Rmisc/index.html
 ```
 
 Load data
@@ -189,6 +190,8 @@ RDA_plot <- plot_ordination(physeq = MicroDF2, ordination = RDA_ord, axes = c(1,
   scale_fill_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded")) +
   scale_colour_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded"))
 RDA_plot
+
+ggsave(RDA_plot, filename = "RDA_plot.pdf", dpi = 600, device = cairo_pdf, width = 5, height = 4, units = "in", family="Arial Unicode MS")
 ```
 
 Phylogenetic diversity
@@ -200,23 +203,13 @@ diversity <- cbind(sample_data(MicroDF), diversity)
 model <- lmer(Shannon ~ Sample_type * Organism * (1|Study_ID) * (1|Environment), data = diversity)
 Anova(model)
 
-div_plot <- ggplot(diversity, aes(x = Sample_type, y = Shannon, fill = Sample_type)) +
-  theme_bw(base_size = 14) +
-  geom_violin(trim=FALSE)+
-  geom_boxplot(width=0.1, fill="white")+
-  labs(y = "Shannon diversity") +
-  theme(axis.title.x=element_blank(),
-        axis.text.x = element_text(color="black"),
-        axis.text.y = element_text(color="black"),
-        axis.title.y = element_text(color="black"),
-        panel.grid = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank(),
-        legend.position="none") +
-  scale_fill_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded")) +
-  scale_colour_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded")) +
-  geom_signif(comparisons = list(c("Control", "Invaded")), annotations="*", y_position = 510, tip_length = 0.03)
-div_plot
+model2 <- lmer(Shannon ~ Sample_type * Organism * (1|Study_ID), data = diversity)
+Anova(model2)
+
+AIC(model,model2)
+
+summary <- summarySE(diversity, measurevar="Shannon", groupvars=c("Sample_type"))
+summary
 ```
 
 Relative abundance
@@ -229,51 +222,29 @@ dat$Class <- as.character(dat$Class)
 dat[, mean := mean(Abundance, na.rm = TRUE), by = "Class"]
 dat[(mean <= 0.01), Class := "Others"]
 dat <- dat[which(dat$Class !="Others")]
-                               
-boxplot.genus <- ggplot(dat[Abundance > 0], aes(x=Class, y=Abundance, fill = Sample_type)) + 
-  geom_boxplot(outlier.shape=NA) + 
-  scale_y_log10(labels = trans_format("log10", math_format(10^.x)), limits = c(0.0001, 1)) +
-  coord_flip() +
-  theme_bw(base_size = 14) +
-  theme(axis.title.y=element_blank(),
-        axis.text.y =element_text(face="italic"),
-        legend.title=element_blank(), 
-        legend.background = element_rect(fill="white"),
-        legend.key = element_rect(fill="transparent"),
-        legend.text = element_text(size = 12),
-        axis.text.x = element_text(color="black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.position = c(0.99, 0.01),
-        legend.justification = c(0.99, 0.01)) +
-  ylab("Abundance (log scale)") +
-  scale_x_discrete(limits = rev(unique(sort(dat$Class)))) +
-  scale_fill_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded")) +
-  scale_colour_manual(name = "Legend", values=c("#0570b0", "#d7301f"), breaks = c("Control", "Invaded"))
-boxplot.genus
 
+summary <- summarySE(dat, measurevar="mean", groupvars=c("Sample_type","Family"))
+                               
 list.bact <-unique(c(as.character(dat$Class)))
-model_calculator <- sapply(list.bact,  
+model_calculator1 <- sapply(list.bact,  
                            function(x){
                              data.s <- dat[which(dat$Class==x),]
                              model <- lmer(Abundance ~ Sample_type * (1|Study_ID) * (1|Environment) * (1|Invasive_species), data = data.s)
                              res <-  Anova(model)
                              return(res)},
                            simplify = FALSE,USE.NAMES = TRUE)
-
 res <- do.call(rbind, model_calculator)
 res <- setDT(res, keep.rownames = TRUE)[]
-```
 
-Plot Figure 1
-
-```R
-p1 <- ggarrange(div_plot, RDA_plot, ncol = 2, nrow = 1,  align = "hv", widths = c(0.5, 1), heights = 1, labels = c("A", "B"))
-p2 <- ggarrange(p1, boxplot.genus, ncol = 1, nrow = 2, widths = c(1, 1), heights = 1, labels = c("", "C"))
-p2
-
-ggsave(p2, filename = "Plots.pdf", dpi = 600, device = cairo_pdf, width = 7, height = 6.5, units = "in", family="Arial Unicode MS")
-
+model_calculator2 <- sapply(list.bact,  
+                           function(x){
+                             data.s <- dat[which(dat$Class==x),]
+                             model <- lmer(Abundance ~ Sample_type * (1|Study_ID) * (1|Invasive_species), data = data.s)
+                             res <-  Anova(model)
+                             return(res)},
+                           simplify = FALSE,USE.NAMES = TRUE)
+res2 <- do.call(rbind, model_calculator2)
+res2 <- setDT(res2, keep.rownames = TRUE)[]
 ```
 
 ## References
