@@ -2,7 +2,7 @@
 
 ### *Antonino Malacrinò, Victoria A. Sadowski, Tvisha K. Martin, Nathalia Cavichiolli de Oliveira, Ian J. Brackett, James D. Feller, Kristian J. Harris, Orlando Combita Heredia, Rosa Vescio, Alison E. Bennett*
 
-*PLoS one* (2020) DOI [10.1371/journal.pone.0240996](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0240996).
+PLoS one (2020) DOI [10.1371/journal.pone.0240996](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0240996).
 <br/>
 Preprint DOI: [10.1101/2020.06.17.157883](https://www.biorxiv.org/content/10.1101/2020.06.17.157883v3)
 <br/>
